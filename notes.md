@@ -6,6 +6,7 @@
 - [saulmm_CoordinatorExamples](https://github.com/saulmm/CoordinatorExamples)
 - [tools and tips](https://speakerdeck.com/saulmm/tools-and-tips-of-the-trade-for-the-android-developer?slide=10)
 - [futurice android best practices](https://github.com/futurice/android-best-practices)
+- [GlideApp](http://bumptech.github.io/glide/doc/generatedapi.html)
 
 # todo 
 lesson 4 - 7. transitions

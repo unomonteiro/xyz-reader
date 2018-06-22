@@ -13,9 +13,9 @@
     <dimen name="spacing_small">4dp</dimen>
     <dimen name="spacing_medium">8dp</dimen>
     <dimen name="spacing_large">16dp</dimen>
-    <dimen name="spacing_extra_large">24dp</dimen>
-    <dimen name="spacing_huge">32dp</dimen>
-    <dimen name="tall_toolbar">152dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
+    <dimen name="spacing_xxl">32dp</dimen>
+    <dimen name="tall_toolbar">128dp</dimen>
 
     <!--elevation-->
     <dimen name="elevation_micro">2dp</dimen>
