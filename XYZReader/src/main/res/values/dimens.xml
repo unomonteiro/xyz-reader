@@ -15,7 +15,8 @@
     <dimen name="spacing_large">16dp</dimen>
     <dimen name="spacing_xl">24dp</dimen>
     <dimen name="spacing_xxl">32dp</dimen>
-    <dimen name="tall_toolbar">128dp</dimen>
+    <dimen name="spacing_4xl">128dp</dimen>
+    <dimen name="tall_toolbar">@dimen/spacing_4xl</dimen>
 
     <!--elevation-->
     <dimen name="elevation_micro">2dp</dimen>

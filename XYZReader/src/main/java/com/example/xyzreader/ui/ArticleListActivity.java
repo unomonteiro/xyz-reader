@@ -7,13 +7,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -25,10 +27,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
@@ -39,6 +40,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
+import static com.bumptech.glide.load.engine.DiskCacheStrategy.RESOURCE;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -174,7 +177,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final ArticleViewHolder holder, int position) {
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
@@ -197,20 +200,27 @@ public class ArticleListActivity extends AppCompatActivity implements
             }
 
             GlideApp.with(ArticleListActivity.this)
+                    .asBitmap()
                     .load(Uri.parse(mCursor.getString(ArticleLoader.Query.THUMB_URL)))
                     .override(Target.SIZE_ORIGINAL)
-                    .listener(new RequestListener<Drawable>() {
+                    .diskCacheStrategy(RESOURCE)
+                    .into(new BitmapImageViewTarget(holder.thumbnailView) {
                         @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            return false;
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            super.onResourceReady(resource, transition);
+                            onPalette(Palette.from(resource).generate());
+                            holder.thumbnailView.setImageBitmap(resource);
                         }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            return false;
+                        void onPalette(Palette palette) {
+                            if (null != palette) {
+                                holder.itemContainer.setBackgroundColor(
+                                        palette.getDarkVibrantColor(
+                                                palette.getDarkMutedColor(
+                                                        Color.DKGRAY)));
+                            }
                         }
-                    })
-                    .into(holder.thumbnailView);
+                    });
         }
 
         @Override
@@ -223,9 +233,11 @@ public class ArticleListActivity extends AppCompatActivity implements
         public ImageView thumbnailView;
         public TextView titleView;
         public TextView subtitleView;
+        private ViewGroup itemContainer;
 
         ArticleViewHolder(View view) {
             super(view);
+            itemContainer = view.findViewById(R.id.list_item_container);
             thumbnailView = view.findViewById(R.id.thumbnail);
             titleView = view.findViewById(R.id.article_title);
             subtitleView = view.findViewById(R.id.article_subtitle);
