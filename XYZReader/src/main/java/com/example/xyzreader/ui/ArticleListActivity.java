@@ -1,11 +1,9 @@
 package com.example.xyzreader.ui;
 
-import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -13,12 +11,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -42,6 +41,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.RESOURCE;
+import static com.example.xyzreader.ui.ArticleDetailActivity.KEY_PALETTE_COLOR;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -53,7 +53,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ArticleListActivity.class.toString();
-    private Toolbar mToolbar;
+    private static final int LOADER_ID_ARTICLE_LIST = 1;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
 
@@ -68,15 +68,10 @@ public class ArticleListActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 
-
-        final View toolbarContainerView = findViewById(R.id.appBar);
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        getLoaderManager().initLoader(0, null, this);
+        mRecyclerView = findViewById(R.id.recycler_view);
+        getSupportLoaderManager().initLoader(LOADER_ID_ARTICLE_LIST, null, this);
 
         if (savedInstanceState == null) {
             refresh();
@@ -116,25 +111,45 @@ public class ArticleListActivity extends AppCompatActivity implements
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 
+    @NonNull
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return ArticleLoader.newAllArticlesInstance(this);
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+        switch (loaderId){
+            case LOADER_ID_ARTICLE_LIST:
+                return ArticleLoader.newAllArticlesInstance(this);
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
+        }
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        ArticleAdapter articleAdapter = new ArticleAdapter(cursor);
-        articleAdapter.setHasStableIds(true);
-        mRecyclerView.setAdapter(articleAdapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
-        StaggeredGridLayoutManager sglm =
-                new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(sglm);
+    public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
+        int loaderId = cursorLoader.getId();
+        switch (loaderId) {
+            case LOADER_ID_ARTICLE_LIST:
+                ArticleAdapter articleAdapter = new ArticleAdapter(cursor);
+                articleAdapter.setHasStableIds(true);
+                mRecyclerView.setAdapter(articleAdapter);
+                int columnCount = getResources().getInteger(R.integer.list_column_count);
+                StaggeredGridLayoutManager sglm =
+                        new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
+                mRecyclerView.setLayoutManager(sglm);
+                break;
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
+        }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mRecyclerView.setAdapter(null);
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        int loaderId = loader.getId();
+        switch (loaderId) {
+            case LOADER_ID_ARTICLE_LIST:
+                mRecyclerView.setAdapter(null);
+                break;
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
+        }
     }
 
     private class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
@@ -154,15 +169,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         @Override
         public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
-            final ArticleViewHolder vh = new ArticleViewHolder(view);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
-                }
-            });
-            return vh;
+            return new ArticleViewHolder(view);
         }
 
         private Date parsePublishedDate() {
@@ -214,13 +221,24 @@ public class ArticleListActivity extends AppCompatActivity implements
 
                         void onPalette(Palette palette) {
                             if (null != palette) {
+                                int darkVibrantColor = palette.getDarkVibrantColor(
+                                        palette.getDarkMutedColor(
+                                                Color.DKGRAY));
+                                holder.paletteColor = darkVibrantColor;
                                 holder.itemContainer.setBackgroundColor(
-                                        palette.getDarkVibrantColor(
-                                                palette.getDarkMutedColor(
-                                                        Color.DKGRAY)));
+                                        darkVibrantColor);
                             }
                         }
                     });
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(holder.getAdapterPosition())));
+                    intent.putExtra(KEY_PALETTE_COLOR, holder.paletteColor);
+                    startActivity(intent);
+                }
+            });
         }
 
         @Override
@@ -234,6 +252,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         public TextView titleView;
         public TextView subtitleView;
         private ViewGroup itemContainer;
+        private int paletteColor;
 
         ArticleViewHolder(View view) {
             super(view);

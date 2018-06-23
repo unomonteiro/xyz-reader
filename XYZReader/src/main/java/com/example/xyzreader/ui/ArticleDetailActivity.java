@@ -1,169 +1,202 @@
 package com.example.xyzreader.ui;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.LoaderManager;
-import android.content.Loader;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowInsets;
+import android.widget.ImageView;
 
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
+import com.example.xyzreader.util.ColorUtils;
+import com.example.xyzreader.util.GlideApp;
+
+import static com.bumptech.glide.load.engine.DiskCacheStrategy.RESOURCE;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
 public class ArticleDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int LOADER_ID_ARTICLE_PAGES = 2;
 
+    private static final String KEY_SELECTED_ITEM_ID = "selected_item_id";
+    static final String KEY_PALETTE_COLOR = "KEY_PALETTE_COLOR";
     private Cursor mCursor;
-    private long mStartId;
 
     private long mSelectedItemId;
-    private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
-    private int mTopInset;
+    private ImageView mPhotoView;
 
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-    private View mUpButtonContainer;
-    private View mUpButton;
+    private CollapsingToolbarLayout mCollapsingToolbar;
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        }
         setContentView(R.layout.activity_article_detail);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        mActionBar = getSupportActionBar();
+        if (mActionBar != null) {
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
-        getLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(LOADER_ID_ARTICLE_PAGES, null, this);
+        mCollapsingToolbar = findViewById(R.id.toolbar_layout);
 
-        mPagerAdapter = new MyPagerAdapter(getFragmentManager());
-        mPager = (ViewPager) findViewById(R.id.pager);
+        mPhotoView = mCollapsingToolbar.findViewById(R.id.photo);
+
+        mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageMargin((int) TypedValue
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
         mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
 
-        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                mUpButton.animate()
-                        .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-                        .setDuration(300);
-            }
-
+        mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 if (mCursor != null) {
                     mCursor.moveToPosition(position);
+                    mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
+                    updateCollapsingToolbar();
                 }
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
-                updateUpButtonPosition();
             }
         });
-
-        mUpButtonContainer = findViewById(R.id.up_container);
-
-        mUpButton = findViewById(R.id.action_up);
-        mUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSupportNavigateUp();
-            }
-        });
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    view.onApplyWindowInsets(windowInsets);
-                    mTopInset = windowInsets.getSystemWindowInsetTop();
-                    mUpButtonContainer.setTranslationY(mTopInset);
-                    updateUpButtonPosition();
-                    return windowInsets;
-                }
-            });
-        }
 
         if (savedInstanceState == null) {
-            if (getIntent() != null && getIntent().getData() != null) {
-                mStartId = ItemsContract.Items.getItemId(getIntent().getData());
-                mSelectedItemId = mStartId;
+            Intent intent = getIntent();
+            if (intent != null && intent.getData() != null) {
+                mSelectedItemId = ItemsContract.Items.getItemId(intent.getData());
             }
+        } else {
+            mSelectedItemId = savedInstanceState.getLong(KEY_SELECTED_ITEM_ID);
+        }
+    }
+
+    private void updateCollapsingToolbar() {
+        mCollapsingToolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+        GlideApp.with(this)
+                .asBitmap()
+                .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
+                .override(Target.SIZE_ORIGINAL)
+                .diskCacheStrategy(RESOURCE)
+                .into(new BitmapImageViewTarget(mPhotoView) {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        super.onResourceReady(resource, transition);
+                        onPalette(Palette.from(resource).generate());
+                        //mPhotoView.setImageBitmap(resource);
+                    }
+
+                    void onPalette(Palette palette) {
+                        if (null != palette) {
+                            int darkVibrantColor = palette.getDarkVibrantColor(
+                                    palette.getDarkMutedColor(
+                                            getResources().getColor(
+                                                    R.color.default_muted)));
+                            updateCollapsingToolbarColor(darkVibrantColor);
+                        }
+                    }
+                });
+    }
+
+    private void updateCollapsingToolbarColor(int darkColor) {
+        //set color action bar
+//            mActionBar.setBackgroundDrawable();
+        //set color status bar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(ColorUtils.manipulateColor(darkColor, 0.60f));
+        }
+        //new ColorDrawable(ColorUtils.manipulateColor(darkColor, 0.62f));
+        mCollapsingToolbar.setBackgroundColor(darkColor);
+        mCollapsingToolbar.setStatusBarScrimColor(darkColor);
+        mCollapsingToolbar.setContentScrimColor(darkColor);
+        mCollapsingToolbar.setExpandedTitleColor(ContextCompat.getColor(ArticleDetailActivity.this,
+                R.color.white_transparent));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(KEY_SELECTED_ITEM_ID, mSelectedItemId);
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+        switch (loaderId){
+            case LOADER_ID_ARTICLE_PAGES:
+                return ArticleLoader.newAllArticlesInstance(this);
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
         }
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return ArticleLoader.newAllArticlesInstance(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+    public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
         mCursor = cursor;
-        mPagerAdapter.notifyDataSetChanged();
-
-        // Select the start ID
-        if (mStartId > 0) {
-            mCursor.moveToFirst();
-            // TODO: optimize
-            while (!mCursor.isAfterLast()) {
-                if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
-                    final int position = mCursor.getPosition();
-                    mPager.setCurrentItem(position, false);
-                    break;
+        int loaderId = cursorLoader.getId();
+        switch (loaderId){
+            case LOADER_ID_ARTICLE_PAGES:
+                // Select the pager CurrentItem
+                if (mSelectedItemId > 0) {
+                    mCursor.moveToPosition(-1);
+                    while (mCursor.moveToNext()) {
+                        if (mCursor.getLong(ArticleLoader.Query._ID) == mSelectedItemId) {
+                            final int position = mCursor.getPosition();
+                            mPagerAdapter.notifyDataSetChanged();
+                            mPager.setCurrentItem(position, false);
+                            updateCollapsingToolbar();
+                            break;
+                        }
+                    }
                 }
-                mCursor.moveToNext();
-            }
-            mStartId = 0;
+                break;
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        mCursor = null;
-        mPagerAdapter.notifyDataSetChanged();
-    }
-
-    public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
-        if (itemId == mSelectedItemId) {
-            mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-            updateUpButtonPosition();
+    public void onLoaderReset(@NonNull Loader<Cursor> cursorLoader) {
+        int loaderId = cursorLoader.getId();
+        switch (loaderId){
+            case LOADER_ID_ARTICLE_PAGES:
+                mCursor = null;
+                mPagerAdapter.notifyDataSetChanged();
+                break;
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
         }
-    }
-
-    private void updateUpButtonPosition() {
-        int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
-        mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
     }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
-        public MyPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
 
-        @Override
-        public void setPrimaryItem(ViewGroup container, int position, Object object) {
-            super.setPrimaryItem(container, position, object);
-            ArticleDetailFragment fragment = (ArticleDetailFragment) object;
-            if (fragment != null) {
-                mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-                updateUpButtonPosition();
-            }
+        MyPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
 
         @Override
