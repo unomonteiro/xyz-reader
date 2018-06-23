@@ -19,33 +19,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/photo_placeholder"
+            android:contentDescription="@string/content_describer_thumbnail"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             tools:src="@drawable/img_vertical"/>
 
+        <!--android:textColor="#fff"-->
         <TextView
             android:id="@+id/article_title"
-            style="@style/TextAppearance.AppCompat.Subhead"
+            style="@style/TextAppearance.AppCompat.Subhead.Inverse"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="16dp"
             android:paddingTop="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:background="@color/colorPrimaryDark"
             tools:text="article_title"
             android:ellipsize="end"
             android:maxLines="4" />
 
         <TextView
             android:id="@+id/article_subtitle"
-            style="@style/TextAppearance.AppCompat.Body1"
+            style="@style/TextAppearance.AppCompat.Small.Inverse"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="16dp"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+            android:background="@color/colorPrimaryDark"
             android:maxLines="2"
             android:ellipsize="end"
             tools:text="article_subtitle"/>
