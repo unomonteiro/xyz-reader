@@ -16,10 +16,11 @@
 -->
 
 <resources>
-    <color name="photo_placeholder">#ccc</color>
-
     <color name="colorPrimary">#1B5E20</color>
     <color name="colorPrimaryDark">#003300</color>
     <color name="colorAccent">#FFAB00</color>
+
+    <color name="photo_placeholder">#ccc</color>
     <color name="light_gray">#ffe0e0e0</color>
+    <color name="default_muted">#ff333333</color>
 </resources>
