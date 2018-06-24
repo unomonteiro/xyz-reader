@@ -22,6 +22,6 @@
 
     <color name="photo_placeholder">#ccc</color>
     <color name="light_gray">#ffe0e0e0</color>
-    <color name="default_muted">#ff333333</color>
+    <color name="default_dark_vibrant">#ff333333</color>
     <color name="white_transparent">#00ffffff</color>
 </resources>

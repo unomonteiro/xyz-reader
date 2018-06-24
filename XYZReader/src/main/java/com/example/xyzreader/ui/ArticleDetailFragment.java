@@ -53,13 +53,13 @@ public class ArticleDetailFragment extends Fragment implements
     private long mItemId;
     private View mRootView;
 
+    private ImageView mPhotoPlaceHolderView;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
-    private ImageView mPhotoView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -102,11 +102,13 @@ public class ArticleDetailFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-        mPhotoView = mRootView.findViewById(R.id.photo_placeHolder);
+
+        mPhotoPlaceHolderView = mRootView.findViewById(R.id.photo_placeHolder);
+
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
+                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(Objects.requireNonNull(getActivity()))
                         .setType("text/plain")
                         .setText("Some sample text")
                         .getIntent(), getString(R.string.action_share)));
@@ -170,12 +172,11 @@ public class ArticleDetailFragment extends Fragment implements
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
                     .override(Target.SIZE_ORIGINAL)
                     .diskCacheStrategy(RESOURCE)
-                    .into(new BitmapImageViewTarget(mPhotoView) {
+                    .into(new BitmapImageViewTarget(mPhotoPlaceHolderView) {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                             super.onResourceReady(resource, transition);
                             onPalette(Palette.from(resource).generate());
-                            //mPhotoView.setImageBitmap(resource);
                         }
 
                         void onPalette(Palette palette) {
@@ -183,7 +184,7 @@ public class ArticleDetailFragment extends Fragment implements
                                 int darkVibrantColor = palette.getDarkVibrantColor(
                                         palette.getDarkMutedColor(
                                                 getResources().getColor(
-                                                        R.color.default_muted)));
+                                                        R.color.default_dark_vibrant)));
                                 mRootView.findViewById(R.id.meta_bar).setBackgroundColor(
                                         darkVibrantColor);
                             }
@@ -196,8 +197,6 @@ public class ArticleDetailFragment extends Fragment implements
             bodyView.setText("N/A");
         }
     }
-
-
 
     @NonNull
     @Override

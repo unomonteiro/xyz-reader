@@ -116,7 +116,7 @@ public class ArticleDetailActivity extends AppCompatActivity
                             int darkVibrantColor = palette.getDarkVibrantColor(
                                     palette.getDarkMutedColor(
                                             getResources().getColor(
-                                                    R.color.default_muted)));
+                                                    R.color.default_dark_vibrant)));
                             updateCollapsingToolbarColor(darkVibrantColor);
                         }
                     }
@@ -157,10 +157,11 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> cursorLoader, Cursor cursor) {
-        mCursor = cursor;
+
         int loaderId = cursorLoader.getId();
         switch (loaderId){
             case LOADER_ID_ARTICLE_PAGES:
+                mCursor = cursor;
                 // Select the pager CurrentItem
                 if (mSelectedItemId > 0) {
                     mCursor.moveToPosition(-1);
