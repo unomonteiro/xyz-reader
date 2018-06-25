@@ -51,7 +51,7 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:behavior_overlapTop="0dp"
+        app:behavior_overlapTop="@dimen/spacing_xl"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 </android.support.design.widget.CoordinatorLayout>
