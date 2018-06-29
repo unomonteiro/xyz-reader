@@ -7,4 +7,6 @@
 
     <!--appBar-->
     <dimen name="app_bar_height">256dp</dimen>
+    <dimen name="overlap_top">@dimen/spacing_xl</dimen>
+
 </resources>

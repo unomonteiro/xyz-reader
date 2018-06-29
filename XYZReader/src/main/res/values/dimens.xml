@@ -10,6 +10,7 @@
 
     <!--appBar-->
     <dimen name="app_bar_height">156dp</dimen>
+    <dimen name="overlap_top">0dp</dimen>
 
     <!--spacing-->
     <dimen name="spacing_micro">4dp</dimen>
@@ -25,6 +26,5 @@
     <dimen name="elevation_medium">8dp</dimen>
     <dimen name="elevation_large">12dp</dimen>
     <dimen name="elevation_huge">16dp</dimen>
-    <dimen name="spacing_72dp">72dp</dimen>
 
 </resources>

@@ -23,6 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
@@ -32,7 +33,8 @@ import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.util.ColorUtils;
 import com.example.xyzreader.util.GlideApp;
 
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.RESOURCE;
+import static com.bumptech.glide.load.engine.DiskCacheStrategy.AUTOMATIC;
+import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
@@ -102,7 +104,7 @@ public class ArticleDetailActivity extends AppCompatActivity
                 .asBitmap()
                 .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
                 .override(Target.SIZE_ORIGINAL)
-                .diskCacheStrategy(RESOURCE)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(new BitmapImageViewTarget(mPhotoView) {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

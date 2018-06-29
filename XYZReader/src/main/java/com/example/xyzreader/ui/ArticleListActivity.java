@@ -40,7 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.RESOURCE;
+import static com.bumptech.glide.load.engine.DiskCacheStrategy.AUTOMATIC;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -217,7 +217,7 @@ public class ArticleListActivity extends AppCompatActivity implements
                     .asBitmap()
                     .load(Uri.parse(mCursor.getString(ArticleLoader.Query.THUMB_URL)))
                     .override(Target.SIZE_ORIGINAL)
-                    .diskCacheStrategy(RESOURCE)
+                    .diskCacheStrategy(AUTOMATIC)
                     .into(new BitmapImageViewTarget(holder.thumbnailView) {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
