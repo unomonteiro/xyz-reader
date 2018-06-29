@@ -44,6 +44,7 @@ public class ArticleDetailActivity extends AppCompatActivity
     private static final String KEY_SELECTED_ITEM_ID = "selected_item_id";
     static final String KEY_PALETTE_COLOR = "KEY_PALETTE_COLOR";
     private Cursor mCursor;
+    private long mStartId;
 
     private long mSelectedItemId;
     private ImageView mPhotoView;
@@ -89,10 +90,9 @@ public class ArticleDetailActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             Intent intent = getIntent();
             if (intent != null && intent.getData() != null) {
-                mSelectedItemId = ItemsContract.Items.getItemId(intent.getData());
+                mStartId = ItemsContract.Items.getItemId(getIntent().getData());
+                mSelectedItemId = mStartId;
             }
-        } else {
-            mSelectedItemId = savedInstanceState.getLong(KEY_SELECTED_ITEM_ID);
         }
     }
 
@@ -162,18 +162,19 @@ public class ArticleDetailActivity extends AppCompatActivity
         switch (loaderId){
             case LOADER_ID_ARTICLE_PAGES:
                 mCursor = cursor;
+                mPagerAdapter.notifyDataSetChanged();
                 // Select the pager CurrentItem
                 if (mSelectedItemId > 0) {
                     mCursor.moveToPosition(-1);
                     while (mCursor.moveToNext()) {
                         if (mCursor.getLong(ArticleLoader.Query._ID) == mSelectedItemId) {
                             final int position = mCursor.getPosition();
-                            mPagerAdapter.notifyDataSetChanged();
                             mPager.setCurrentItem(position, false);
                             updateCollapsingToolbar();
                             break;
                         }
                     }
+                    mStartId = 0;
                 }
                 break;
             default:
