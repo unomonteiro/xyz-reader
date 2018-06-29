@@ -17,6 +17,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:background="#fff"
+            tools:layout_width="match_parent"
+            tools:layout_height="match_parent"
             android:elevation="2dp">
 
             <LinearLayout
@@ -57,12 +59,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#8fff"
+                    tools:layout_height="match_parent"
                     tools:text="Article Byline" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/article_body"
-                style="?android:attr/textAppearanceMedium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxWidth="@dimen/detail_card_max_width"
@@ -70,7 +72,9 @@
                 android:layout_marginRight="@dimen/detail_inner_horiz_margin"
                 android:paddingBottom="@dimen/detail_body_bottom_margin"
                 android:textColorLink="@color/colorAccent"
-                android:textSize="@dimen/detail_body_text_size"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                tools:layout_height="match_parent"
+                tools:text="@tools:sample/lorem/random"
                 android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
 
         </LinearLayout>
