@@ -41,7 +41,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.RESOURCE;
-import static com.example.xyzreader.ui.ArticleDetailActivity.KEY_PALETTE_COLOR;
 
 /**
  * An activity representing a list of Articles. This activity has different presentations for
@@ -71,7 +70,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
 
         mRecyclerView = findViewById(R.id.recycler_view);
-        getSupportLoaderManager().initLoader(LOADER_ID_ARTICLE_LIST, null, this);
+        getSupportLoaderManager().restartLoader(LOADER_ID_ARTICLE_LIST, null, this);
 
         if (savedInstanceState == null) {
             refresh();
@@ -169,7 +168,15 @@ public class ArticleListActivity extends AppCompatActivity implements
         @Override
         public ArticleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
-            return new ArticleViewHolder(view);
+            final ArticleViewHolder vh = new ArticleViewHolder(view);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                }
+            });
+            return vh;
         }
 
         private Date parsePublishedDate() {
@@ -230,15 +237,6 @@ public class ArticleListActivity extends AppCompatActivity implements
                             }
                         }
                     });
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(holder.getAdapterPosition())));
-                    intent.putExtra(KEY_PALETTE_COLOR, holder.paletteColor);
-                    startActivity(intent);
-                }
-            });
         }
 
         @Override
