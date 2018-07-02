@@ -1,4 +1,5 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_frame_layout"
@@ -6,91 +7,89 @@
     android:layout_height="match_parent"
     tools:context=".ui.ArticleDetailActivity">
 
-    <android.support.v4.widget.NestedScrollView
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
+        <View
+            android:id="@+id/meta_bar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#333"
             android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@+id/article_byline"
+            app:layout_constraintEnd_toEndOf="@+id/article_title"
+            app:layout_constraintStart_toStartOf="@+id/article_title"
+            app:layout_constraintTop_toTopOf="@+id/article_title">
+
+        </View>
+
+        <ImageView
+            android:id="@+id/photo_placeHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="#fff"
-            tools:layout_width="match_parent"
-            tools:layout_height="match_parent"
-            android:elevation="2dp">
+            android:visibility="gone" />
 
-            <LinearLayout
-                android:id="@+id/meta_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="@dimen/detail_metabar_vert_padding"
-                android:background="#333"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/detail_metabar_vert_padding"
-                android:paddingLeft="@dimen/detail_inner_horiz_margin"
-                android:paddingRight="@dimen/detail_inner_horiz_margin"
-                android:paddingTop="@dimen/detail_metabar_vert_padding">
+        <TextView
+            android:id="@+id/article_title"
+            style="?android:attr/textAppearanceLarge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
+            android:paddingEnd="@dimen/detail_inner_horiz_margin"
+            android:paddingStart="@dimen/detail_inner_horiz_margin"
+            android:paddingTop="@dimen/detail_metabar_vert_padding"
+            android:textColor="#fff"
+            android:textSize="@dimen/detail_title_text_size"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/article_byline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread"
+            tools:text="Article TitleArticle TitleArticle Title" />
 
-                <ImageView
-                    android:id="@+id/photo_placeHolder"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
+        <TextView
+            android:id="@+id/article_byline"
+            style="?android:attr/textAppearanceSmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/detail_metabar_vert_padding"
+            android:paddingEnd="@dimen/detail_inner_horiz_margin"
+            android:paddingStart="@dimen/detail_inner_horiz_margin"
+            android:textColor="#8fff"
+            app:layout_constraintBottom_toTopOf="@+id/article_body"
+            app:layout_constraintEnd_toEndOf="@+id/article_title"
+            app:layout_constraintStart_toStartOf="@+id/article_title"
+            app:layout_constraintTop_toBottomOf="@+id/article_title"
+            tools:text="Article Byline" />
 
-                <TextView
-                    android:id="@+id/article_title"
-                    style="?android:attr/textAppearanceLarge"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-condensed"
-                    android:lineSpacingMultiplier="0.9"
-                    android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
-                    android:textColor="#fff"
-                    android:textSize="@dimen/detail_title_text_size"
-                    android:textStyle="bold"
-                    tools:text="Article Title" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/article_body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/article_byline"
+            tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_article_body"
+            tools:text="@tools:sample/lorem/random" />
 
-                <TextView
-                    android:id="@+id/article_byline"
-                    style="?android:attr/textAppearanceSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#8fff"
-                    tools:layout_height="match_parent"
-                    tools:text="Article Byline" />
-            </LinearLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/share_fab"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:contentDescription="@string/action_share"
+            android:elevation="@dimen/fab_elevation"
+            android:src="@drawable/ic_share"
+            app:layout_constraintBottom_toBottomOf="@+id/article_byline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/article_byline"
+            app:pressedTranslationZ="@dimen/fab_press_elevation" />
 
-            <TextView
-                android:id="@+id/article_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxWidth="@dimen/detail_card_max_width"
-                android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
-                android:layout_marginRight="@dimen/detail_inner_horiz_margin"
-                android:paddingBottom="@dimen/detail_body_bottom_margin"
-                android:textColorLink="@color/colorAccent"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                tools:layout_height="match_parent"
-                tools:text="@tools:sample/lorem/random"
-                android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier" />
-
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
-
-    <ImageButton android:id="@+id/share_fab"
-        android:stateListAnimator="@anim/fab_state_list_anim"
-        android:background="@drawable/add_fab_background"
-        android:layout_gravity="bottom|end"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_share"
-        android:elevation="@dimen/fab_elevation"
-        android:contentDescription="@string/action_share" />
-
-</FrameLayout>
+    </android.support.constraint.ConstraintLayout>
+</android.support.v4.widget.NestedScrollView>

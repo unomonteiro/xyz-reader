@@ -3,7 +3,6 @@ package com.example.xyzreader.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +11,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -31,6 +32,8 @@ import com.example.xyzreader.util.GlideApp;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Objects;
@@ -54,6 +57,7 @@ public class ArticleDetailFragment extends Fragment implements
     private View mRootView;
 
     private ImageView mPhotoPlaceHolderView;
+    private RecyclerView mBodyRecyclerView;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -138,10 +142,13 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = mRootView.findViewById(R.id.article_title);
         TextView bylineView = mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = mRootView.findViewById(R.id.article_body);
-
-
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
+        mBodyRecyclerView = mRootView.findViewById(R.id.article_body);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(
+                getContext(),LinearLayoutManager.VERTICAL, false);
+        mBodyRecyclerView.setHasFixedSize(true);
+        mBodyRecyclerView.setLayoutManager(layoutManager);
+        mBodyRecyclerView.setNestedScrollingEnabled(false);
+        ArrayList<String> bodyTextArray = new ArrayList<>();
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -166,7 +173,11 @@ public class ArticleDetailFragment extends Fragment implements
                         + mCursor.getString(ArticleLoader.Query.AUTHOR)
                                 + "</font>"));
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
+            bodyTextArray.addAll(Arrays.asList(
+                    mCursor.getString(ArticleLoader.Query.BODY).split("(\r\n|\n)")));
+
+            mBodyRecyclerView.setAdapter(new BodyTextAdapter(bodyTextArray));
+
             GlideApp.with(Objects.requireNonNull(getContext()))
                     .asBitmap()
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
@@ -193,8 +204,9 @@ public class ArticleDetailFragment extends Fragment implements
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
-            bylineView.setText("N/A" );
-            bodyView.setText("N/A");
+            bylineView.setText("N/A");
+            bodyTextArray.add("N/A");
+            mBodyRecyclerView.setAdapter(new BodyTextAdapter(bodyTextArray));
         }
     }
 
