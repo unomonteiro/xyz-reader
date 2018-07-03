@@ -173,8 +173,8 @@ public class ArticleDetailFragment extends Fragment implements
                         + mCursor.getString(ArticleLoader.Query.AUTHOR)
                                 + "</font>"));
             }
-            bodyTextArray.addAll(Arrays.asList(
-                    mCursor.getString(ArticleLoader.Query.BODY).split("(\r\n|\n)")));
+            bodyTextArray.addAll(Arrays.asList(mCursor.getString(ArticleLoader.Query.BODY)
+                            .substring(0,2000).split("(\r\n|\n)")));
 
             mBodyRecyclerView.setAdapter(new BodyTextAdapter(bodyTextArray));
 
