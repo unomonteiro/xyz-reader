@@ -5,11 +5,13 @@
     android:id="@+id/main_frame_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:elevation="8dp"
     tools:context=".ui.ArticleDetailActivity">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:elevation="8dp">
 
         <View
             android:id="@+id/meta_bar"
@@ -35,6 +37,7 @@
             style="?android:attr/textAppearanceLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            app:layout_constraintWidth_max="@dimen/detail_card_max_width"
             android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
             android:paddingEnd="@dimen/detail_inner_horiz_margin"
             android:paddingStart="@dimen/detail_inner_horiz_margin"
@@ -54,6 +57,7 @@
             style="?android:attr/textAppearanceSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:elevation="8dp"
             android:paddingBottom="@dimen/detail_metabar_vert_padding"
             android:paddingEnd="@dimen/detail_inner_horiz_margin"
             android:paddingStart="@dimen/detail_inner_horiz_margin"
@@ -68,6 +72,8 @@
             android:id="@+id/article_body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:elevation="8dp"
+            app:layout_constraintWidth_max="@dimen/detail_card_max_width"
             android:nestedScrollingEnabled="false"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -87,7 +93,7 @@
             android:elevation="@dimen/fab_elevation"
             android:src="@drawable/ic_share"
             app:layout_constraintBottom_toBottomOf="@+id/article_byline"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/article_title"
             app:layout_constraintTop_toBottomOf="@+id/article_byline"
             app:pressedTranslationZ="@dimen/fab_press_elevation" />
 
