@@ -17,6 +17,7 @@
     <dimen name="spacing_xxl">128dp</dimen>
 
     <!--elevation-->
+    <dimen name="app_bar_elevation">6dp</dimen>
     <dimen name="fab_elevation">6dp</dimen>
     <dimen name="fab_press_elevation">12dp</dimen>
     <dimen name="fab_margin">24dp</dimen>
