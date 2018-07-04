@@ -9,9 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
@@ -32,9 +29,6 @@ import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.util.ColorUtils;
 import com.example.xyzreader.util.GlideApp;
-
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.AUTOMATIC;
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.DATA;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
@@ -71,7 +65,7 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         mPhotoView = mCollapsingToolbar.findViewById(R.id.photo);
 
-        mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mPagerAdapter = new MyPagerAdapter(mCursor, getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageMargin((int) TypedValue
@@ -92,7 +86,7 @@ public class ArticleDetailActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             Intent intent = getIntent();
             if (intent != null && intent.getData() != null) {
-                mStartId = ItemsContract.Items.getItemId(getIntent().getData());
+                mStartId = ItemsContract.Items.getItemId(intent.getData());
                 mSelectedItemId = mStartId;
             }
         }
@@ -164,7 +158,7 @@ public class ArticleDetailActivity extends AppCompatActivity
         switch (loaderId){
             case LOADER_ID_ARTICLE_PAGES:
                 mCursor = cursor;
-                mPagerAdapter.notifyDataSetChanged();
+                mPagerAdapter.setCursor(mCursor);
                 // Select the pager CurrentItem
                 if (mSelectedItemId > 0) {
                     mCursor.moveToPosition(-1);
@@ -190,28 +184,11 @@ public class ArticleDetailActivity extends AppCompatActivity
         switch (loaderId){
             case LOADER_ID_ARTICLE_PAGES:
                 mCursor = null;
-                mPagerAdapter.notifyDataSetChanged();
+                mPagerAdapter.setCursor(mCursor);
                 break;
             default:
                 throw new RuntimeException("Loader Not Implemented: " + loaderId);
         }
     }
 
-    private class MyPagerAdapter extends FragmentStatePagerAdapter {
-
-        MyPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
-        }
-
-        @Override
-        public int getCount() {
-            return (mCursor != null) ? mCursor.getCount() : 0;
-        }
-    }
 }
