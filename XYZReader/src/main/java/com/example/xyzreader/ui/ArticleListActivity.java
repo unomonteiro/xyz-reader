@@ -246,11 +246,11 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     public static class ArticleViewHolder extends RecyclerView.ViewHolder {
-        public ImageView thumbnailView;
-        public TextView titleView;
-        public TextView subtitleView;
-        private ViewGroup itemContainer;
-        private int paletteColor;
+        ImageView thumbnailView;
+        TextView titleView;
+        TextView subtitleView;
+        ViewGroup itemContainer;
+        int paletteColor;
 
         ArticleViewHolder(View view) {
             super(view);

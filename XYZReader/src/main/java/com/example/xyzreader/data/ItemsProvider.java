@@ -59,7 +59,7 @@ public class ItemsProvider extends ContentProvider {
 		final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 		final SelectionBuilder builder = buildSelection(uri);
 		Cursor cursor = builder.where(selection, selectionArgs).query(db, projection, sortOrder);
-        if (cursor != null) {
+        if (cursor != null && getContext() != null) {
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
         return cursor;

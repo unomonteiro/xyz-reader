@@ -50,14 +50,13 @@ public class ArticleDetailFragment extends Fragment implements
     private static final String TAG = "ArticleDetailFragment";
     private static final int LOADER_ID_ARTICLE_FRAGMENT = 3;
 
-    public static final String ARG_ITEM_ID = "item_id";
+    private static final String ARG_ITEM_ID = "item_id";
 
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
 
     private ImageView mPhotoPlaceHolderView;
-    private RecyclerView mBodyRecyclerView;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -142,12 +141,12 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = mRootView.findViewById(R.id.article_title);
         TextView bylineView = mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        mBodyRecyclerView = mRootView.findViewById(R.id.article_body);
+        RecyclerView bodyRecyclerView = mRootView.findViewById(R.id.article_body);
         LinearLayoutManager layoutManager = new LinearLayoutManager(
                 getContext(),LinearLayoutManager.VERTICAL, false);
-        mBodyRecyclerView.setHasFixedSize(true);
-        mBodyRecyclerView.setLayoutManager(layoutManager);
-        mBodyRecyclerView.setNestedScrollingEnabled(false);
+        bodyRecyclerView.setHasFixedSize(true);
+        bodyRecyclerView.setLayoutManager(layoutManager);
+        bodyRecyclerView.setNestedScrollingEnabled(false);
         ArrayList<String> bodyTextArray = new ArrayList<>();
 
         if (mCursor != null) {
@@ -176,7 +175,7 @@ public class ArticleDetailFragment extends Fragment implements
             bodyTextArray.addAll(Arrays.asList(mCursor.getString(ArticleLoader.Query.BODY)
                             .substring(0,2000).split("(\r\n|\n)")));
 
-            mBodyRecyclerView.setAdapter(new BodyTextAdapter(bodyTextArray));
+            bodyRecyclerView.setAdapter(new BodyTextAdapter(bodyTextArray));
 
             GlideApp.with(Objects.requireNonNull(getContext()))
                     .asBitmap()
@@ -206,7 +205,7 @@ public class ArticleDetailFragment extends Fragment implements
             titleView.setText("N/A");
             bylineView.setText("N/A");
             bodyTextArray.add("N/A");
-            mBodyRecyclerView.setAdapter(new BodyTextAdapter(bodyTextArray));
+            bodyRecyclerView.setAdapter(new BodyTextAdapter(bodyTextArray));
         }
     }
 
